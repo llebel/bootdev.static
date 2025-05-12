@@ -1,5 +1,5 @@
 import re
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, BlockType
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -86,7 +86,7 @@ def extract_markdown_links(text):
     return matches
 
 
-def text_to_textnodes(text):
+def text_to_textnodes(text: str) -> list[TextNode]:
     if not text:
         return TextNode("", TextType.TEXT)
     
@@ -99,7 +99,7 @@ def text_to_textnodes(text):
     result = [node for node in result if node.text or node.text_type != TextType.TEXT]
     return result    
 
-def markdown_to_blocks(markdown):
+def markdown_to_blocks(markdown: str) -> list[str]:
     if not markdown:
         return []
     blocks = []
