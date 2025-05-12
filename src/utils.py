@@ -98,3 +98,14 @@ def text_to_textnodes(text):
     result = split_nodes_link(result)
     result = [node for node in result if node.text or node.text_type != TextType.TEXT]
     return result    
+
+def markdown_to_blocks(markdown):
+    if not markdown:
+        return []
+    blocks = []
+    for block in markdown.split("\n\n"):
+        block = block.strip()
+        if not block:
+            continue
+        blocks.append(block)
+    return blocks

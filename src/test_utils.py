@@ -161,3 +161,43 @@ class TestUtils(unittest.TestCase):
         ]
         result = text_to_textnodes(text)
         self.assertEqual(result, expected)
+    
+    def test_markdown_to_blocks(self):
+        self.maxDiff = None
+        text = """# This is a heading
+
+This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
+
+- This is the first list item in a list block
+- This is a list item
+- This is another list item"""
+
+        expected = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and _italic_ words inside of it.",
+            """- This is the first list item in a list block
+- This is a list item
+- This is another list item""",
+        ]
+
+        self.assertEqual(markdown_to_blocks(text), expected)
+
+    def test_markdown_to_blocks_2(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
