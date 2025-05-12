@@ -201,3 +201,29 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+    def test_block_to_block_type(self):
+        self.assertEqual(block_to_block_type("# This is a heading"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## This is a heading"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("### This is a heading"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("#### This is a heading"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("##### This is a heading"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("###### This is a heading"), BlockType.HEADING)
+
+        self.assertEqual(block_to_block_type("This is a paragraph"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(" # This is not a heading"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("> This is not a quote\nThis is not a quote"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("- This is not an unordered list\nAnd yet another line"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("2. This is not an ordered list"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("1. This is not an ordered list\n3. Because count in not in seq"), BlockType.PARAGRAPH)
+
+        self.assertEqual(block_to_block_type("```python\nprint('Hello, World!')\n```"), BlockType.CODE)
+
+        self.assertEqual(block_to_block_type("> This is a quote"), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type("> This is a quote\n> and still a quote"), BlockType.QUOTE)
+
+        self.assertEqual(block_to_block_type("- This is an unordered list"), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type("- This is an unordered list\n- And yet another line"), BlockType.UNORDERED_LIST)
+
+        self.assertEqual(block_to_block_type("1. This is an ordered list"), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("1. This is an ordered list\n2. Because count is incrementing"), BlockType.ORDERED_LIST)
