@@ -221,3 +221,28 @@ def quote_to_html_node(block):
     content = " ".join(new_lines)
     children = text_to_children(content)
     return ParentNode("blockquote", children)
+
+def overwrite_public_files(source_dir, dest_dir):
+    import os
+    import shutil
+
+    # Cleanup destination directory
+    if os.path.exists(dest_dir):
+        print(f"Cleaning up destination directory: {dest_dir}")
+        shutil.rmtree(dest_dir)
+
+    # Create destination directory
+    print(f"Creating destination directory: {dest_dir}")
+    os.makedirs(dest_dir, exist_ok=True)
+
+    # Copy files from source to destination
+    for filename in os.listdir(source_dir):
+        source_file = os.path.join(source_dir, filename)
+        dest_file = os.path.join(dest_dir, filename)
+
+        if os.path.isfile(source_file):
+            print(f"Copying file: {source_file} to {dest_file}")
+            shutil.copy2(source_file, dest_file)
+        elif os.path.isdir(source_file):
+            print(f"Copying directory: {source_file} to {dest_file}")
+            shutil.copytree(source_file, dest_file, dirs_exist_ok=True)
