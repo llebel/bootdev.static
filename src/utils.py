@@ -157,9 +157,9 @@ def block_to_html_node(block):
         return heading_to_html_node(block)
     if block_type == BlockType.CODE:
         return code_to_html_node(block)
-    if block_type == BlockType.OLIST:
+    if block_type == BlockType.ORDERED_LIST:
         return olist_to_html_node(block)
-    if block_type == BlockType.ULIST:
+    if block_type == BlockType.UNORDERED_LIST:
         return ulist_to_html_node(block)
     if block_type == BlockType.QUOTE:
         return quote_to_html_node(block)
@@ -246,3 +246,57 @@ def overwrite_public_files(source_dir, dest_dir):
         elif os.path.isdir(source_file):
             print(f"Copying directory: {source_file} to {dest_file}")
             shutil.copytree(source_file, dest_file, dirs_exist_ok=True)
+
+def extract_title(markdown):
+    """
+    Extract the title from the markdown content.
+    The title is assumed to be the first line of the markdown.
+    """
+    if not markdown:
+        raise ValueError("Markdown content is empty")
+    first_line = markdown.split("\n")[0].strip()
+    if first_line.startswith("#"):
+        return first_line.lstrip("#").strip()
+    raise ValueError("Title not found in markdown content")
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} using template {template_path} to {dest_path}")
+
+    import os
+    with open(from_path, 'r', encoding='utf-8') as f:
+        print(f"Reading markdown content from {from_path}")
+        if not os.path.exists(from_path):
+            raise FileNotFoundError(f"Markdown file {from_path} does not exist")
+        markdown_content = f.read()
+
+    with open(template_path, 'r', encoding='utf-8') as f:
+        print(f"Reading template content from {template_path}")
+        if not os.path.exists(template_path):
+            raise FileNotFoundError(f"Template file {template_path} does not exist")
+        template_content = f.read()
+
+    html_string = markdown_to_html_node(markdown_content).to_html()
+    title = extract_title(markdown_content)
+    html_content = template_content.replace("{{ Content }}", html_string).replace("{{ Title }}", title)
+
+    if not os.path.exists(os.path.dirname(dest_path)):
+        os.makedirs(os.path.dirname(dest_path))
+
+    with open(dest_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+def generate_pages_recursive(content_dir_path, template_path, dest_dir_path):
+    import os
+
+    if not os.path.exists(content_dir_path):
+        raise FileNotFoundError(f"Content directory {content_dir_path} does not exist")
+
+    for root, dirs, files in os.walk(content_dir_path):
+        for file in files:
+            if file.endswith(".md"):
+                from_path = os.path.join(root, file)
+                relative_path = os.path.relpath(from_path, content_dir_path)
+                dest_path = os.path.join(dest_dir_path, relative_path.replace(".md", ".html"))
+                print(f"Generating page for {from_path} to {dest_path}")
+                generate_page(from_path, template_path, dest_path)
+    print(f"All pages generated in {dest_dir_path}")

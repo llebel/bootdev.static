@@ -16,7 +16,7 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(node2.to_html(), '<a href="https://example.com">Click here</a>')
 
         node3 = LeafNode("img", None, {"src": "image.png", "alt": "An image"})
-        self.assertRaises(ValueError, node3.to_html)
+        self.assertEqual(node3.to_html(), '<img src="image.png" alt="An image"/>')
 
     def test_to_html_with_children(self):
         child_node = LeafNode("span", "child")
