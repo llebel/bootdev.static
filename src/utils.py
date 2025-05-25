@@ -259,7 +259,7 @@ def extract_title(markdown):
         return first_line.lstrip("#").strip()
     raise ValueError("Title not found in markdown content")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath="/"):
     print(f"Generating page from {from_path} using template {template_path} to {dest_path}")
 
     import os
@@ -275,17 +275,30 @@ def generate_page(from_path, template_path, dest_path):
             raise FileNotFoundError(f"Template file {template_path} does not exist")
         template_content = f.read()
 
+    # Convert markdown to HTML
     html_string = markdown_to_html_node(markdown_content).to_html()
     title = extract_title(markdown_content)
+
+    # Using template to generate the final HTML content
     html_content = template_content.replace("{{ Content }}", html_string).replace("{{ Title }}", title)
 
+    # Set the base path for relative links
+    html_content = html_content.replace('href="/', f'href="{basepath}')
+    html_content = html_content.replace('src="/', f'src="{basepath}')
+    html_content = html_content.replace('action="/', f'action="{basepath}')
+    html_content = html_content.replace('url("/', f'url("{basepath}')
+    html_content = html_content.replace('link rel="stylesheet" href="/', f'link rel="stylesheet" href="{basepath}')
+    html_content = html_content.replace('script src="/', f'script src="{basepath}')
+
+    # Ensure the destination directory exists
     if not os.path.exists(os.path.dirname(dest_path)):
         os.makedirs(os.path.dirname(dest_path))
 
+    # Write the generated HTML content to the destination path
     with open(dest_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-def generate_pages_recursive(content_dir_path, template_path, dest_dir_path):
+def generate_pages_recursive(content_dir_path, template_path, dest_dir_path, basepath="/"):
     import os
 
     if not os.path.exists(content_dir_path):
@@ -298,5 +311,5 @@ def generate_pages_recursive(content_dir_path, template_path, dest_dir_path):
                 relative_path = os.path.relpath(from_path, content_dir_path)
                 dest_path = os.path.join(dest_dir_path, relative_path.replace(".md", ".html"))
                 print(f"Generating page for {from_path} to {dest_path}")
-                generate_page(from_path, template_path, dest_path)
+                generate_page(from_path, template_path, dest_path, basepath)
     print(f"All pages generated in {dest_dir_path}")
